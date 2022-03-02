@@ -37,3 +37,31 @@ dtypes: float16(301), uint16(2)
 memory usage: 1.8 GB
 CPU times: user 592 ms, sys: 1.96 s, total: 2.56 s
 Wall time: 16.7 s
+
+pivot target so that rows are investment ids and time ids are columns¶
+```
+inv_piv = train[['investment_id', 'target', 'time_id']].astype(np.float32).pivot(columns='time_id', index='investment_id', 
+                                                                                 values='target').fillna(0)
+invcols = inv_piv.columns.tolist()
+```
+We use umap to reduce dimensionality and kmeans to group investment ids. Then we plot the results.
+There is some relationships, but this may be due to the distinction between frequent and infrequent investment id's appearing in the dataset
+
+```
+%matplotlib inline
+pipe = Pipeline([('umap', umap.UMAP(n_components=3, min_dist=0, n_neighbors=10, random_state=21))])
+pipe.fit(inv_piv[invcols])
+kmeans = KMeans(n_clusters=5)
+kmeans.fit(pipe['umap'].embedding_)
+# Create the figure
+fig = plt.figure(figsize=(8,8))
+ax = plt.axes(projection='3d')
+
+ax.scatter3D(pipe['umap'].embedding_[:, 0], pipe['umap'].embedding_[:, 1], 
+           pipe['umap'].embedding_[:, 2], c = kmeans.labels_, s=0.5)
+plt.show()
+```
+
+![__results___6_0](https://user-images.githubusercontent.com/35774039/156271755-955be203-b79d-4ff7-a3ed-7e8a427dc12a.png)
+![__results___6_1](https://user-images.githubusercontent.com/35774039/156271765-ad42d86f-2327-4478-86d8-bda53e49896d.png)
+![__results___6_2](https://user-images.githubusercontent.com/35774039/156271766-876de616-5211-44f7-b283-731dc1f811f5.png)
