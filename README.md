@@ -65,3 +65,24 @@ plt.show()
 ![__results___6_0](https://user-images.githubusercontent.com/35774039/156271755-955be203-b79d-4ff7-a3ed-7e8a427dc12a.png)
 ![__results___6_1](https://user-images.githubusercontent.com/35774039/156271765-ad42d86f-2327-4478-86d8-bda53e49896d.png)
 ![__results___6_2](https://user-images.githubusercontent.com/35774039/156271766-876de616-5211-44f7-b283-731dc1f811f5.png)
+
+below makes the image interactive using plotly express
+```
+import plotly.express as px
+
+pipe = Pipeline([('umap', umap.UMAP(n_components=3, min_dist=0, n_neighbors=30, random_state=21))])
+
+pipe.fit(inv_piv[invcols])
+
+kmeans = KMeans(n_clusters=5)
+kmeans.fit(pipe['umap'].embedding_)
+
+fig = px.scatter_3d(x=pipe['umap'].embedding_[:, 0], y=pipe['umap'].embedding_[:, 1], z=pipe['umap'].embedding_[:, 2], 
+                    color = kmeans.labels_, size=kmeans.labels_, size_max=18, opacity=0.7)
+
+# tight layout
+fig.update_layout(margin=dict(l=0, r=0, b=0, t=0))
+```
+![newplot](https://user-images.githubusercontent.com/35774039/156272369-9335bfbd-b8f4-49a3-ac70-29b9aa0e3e5a.png)
+
+
